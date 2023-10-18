@@ -19,11 +19,6 @@ func (s *AppService) Registration(ctx context.Context, req model.RegistrationReq
 		return errs.New(model.ECodeInternal, "failed to check email")
 	}
 
-	okPhone, err := s.repo.IsPhoneNumberExists(ctx, req.PhoneNumber)
-	if err != nil && !errors.Is(err, model.ErrNotFound) {
-		return errs.New(model.ECodeInternal, "failed to check phone number")
-	}
-
 	if okEmail {
 		log.Println("email is exists")
 		return errs.NewWithAttribute(model.ECodeDataExists, "email is exists", []errs.Attribute{{
@@ -32,15 +27,7 @@ func (s *AppService) Registration(ctx context.Context, req model.RegistrationReq
 		}})
 	}
 
-	if okPhone {
-		log.Println("phone number is exists")
-		return errs.NewWithAttribute(model.ECodeDataExists, "phone number is exists", []errs.Attribute{{
-			Field:   "phone_number",
-			Message: "phone number is exists",
-		}})
-	}
-
-	err = s.repo.StoreUser(ctx, req)
+	err = s.repo.StoreMember(ctx, req)
 	if err != nil {
 		log.Println("failed to store user")
 		return errs.New(model.ECodeInternal, "failed to store user")

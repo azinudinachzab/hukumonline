@@ -3,6 +3,8 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/JGLTechnologies/gin-rate-limit"
@@ -90,11 +92,11 @@ func (d *HttpServer) Registration(c *gin.Context) {
 		return
 	}
 
-	responseData(c, http.StatusCreated, httpResponse{Message: "Registration Success"})
+	responseData(c, http.StatusCreated, httpResponse{Message: "Registration success"})
 }
 
 func (d *HttpServer) CreateGathering(c *gin.Context) {
-	var req model.RegistrationRequest
+	var req model.CreateGatheringRequest
 
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		err = errs.New(model.ECodeBadRequest, "failed to decode request body")
@@ -102,13 +104,13 @@ func (d *HttpServer) CreateGathering(c *gin.Context) {
 		return
 	}
 
-	err := d.service.Registration(c, req)
+	err := d.service.CreateGathering(c, req)
 	if err != nil {
 		responseError(c, err)
 		return
 	}
 
-	responseData(c, http.StatusCreated, httpResponse{Message: "Registration Success"})
+	responseData(c, http.StatusCreated, httpResponse{Message: "Create gathering success"})
 }
 
 func (d *HttpServer) ResponseInvitation(c *gin.Context) {
@@ -118,13 +120,38 @@ func (d *HttpServer) ResponseInvitation(c *gin.Context) {
 		response = c.Query("response")
 	)
 
-	err := d.service.Registration(c, req)
+	ids := make([]uint64, 0)
+	var err error
+	for _, val := range [2]string{memberID, gatheringID} {
+		tmp, x := strconv.ParseUint(val, 10, 64)
+		ids = append(ids, tmp)
+		err = x
+	}
 	if err != nil {
 		responseError(c, err)
 		return
 	}
 
-	responseData(c, http.StatusCreated, httpResponse{Message: "Registration Success"})
+	mapResponse := map[string]int{
+		"YES": 1,
+		"NO": 2,
+	}
+	responseReq, ok := mapResponse[strings.ToUpper(response)]
+	if !ok {
+		responseReq = 3
+	}
+
+	err = d.service.ResponseInvitation(c, model.ResponseInvitationRequest{
+		MemberID:    ids[0],
+		GatheringID: ids[1],
+		Response:    responseReq,
+	})
+	if err != nil {
+		responseError(c, err)
+		return
+	}
+
+	responseData(c, http.StatusOK, httpResponse{Message: "Response to an invitation success"})
 }
 
 func (d *HttpServer) Custom404(c *gin.Context) {

@@ -29,5 +29,6 @@ func NewService(dep Dependency) *AppService {
 
 type Service interface {
 	Registration(ctx context.Context, req model.RegistrationRequest) error
-	CreateGathering(ctx context.Context)
+	CreateGathering(ctx context.Context, req model.CreateGatheringRequest) error
+	ResponseInvitation(ctx context.Context, req model.ResponseInvitationRequest) error
 }

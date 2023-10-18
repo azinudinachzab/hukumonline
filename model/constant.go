@@ -10,15 +10,3 @@ const (
 	ECodeAuthorization = 40006 // for error when request need authorization
 	ECodeForbidden     = 40007 // for error when request cannot be access because some reason
 )
-
-// user verification status
-const (
-	VerificationStatusNew      = 0
-	VerificationStatusVerified = 1
-)
-
-const (
-	PromoStatusInactive = 0
-	PromoStatusActive   = 1
-	PromoPercentage = 5.0
-)

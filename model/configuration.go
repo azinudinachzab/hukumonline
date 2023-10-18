@@ -1,6 +1,6 @@
 package model
 
 type Configuration struct {
-	AppAddress         string
-	DatabaseString     string
+	AppAddress     string
+	DatabaseString string
 }
